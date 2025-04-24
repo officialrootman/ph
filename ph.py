@@ -20,11 +20,46 @@ def main():
     args = parser.parse_args()
 
     platforms = {
+        # Sosyal Medya Platformları
         "GitHub": "https://github.com/{username}",
         "Twitter": "https://twitter.com/{username}",
         "Instagram": "https://www.instagram.com/{username}",
         "Pinterest": "https://www.pinterest.com/{username}",
         "Reddit": "https://www.reddit.com/user/{username}",
+        "Facebook": "https://www.facebook.com/{username}",
+        "LinkedIn": "https://www.linkedin.com/in/{username}",
+        "TikTok": "https://www.tiktok.com/@{username}",
+        "Tumblr": "https://{username}.tumblr.com",
+        
+        # İçerik ve Video Platformları
+        "YouTube": "https://www.youtube.com/{username}",
+        "Vimeo": "https://vimeo.com/{username}",
+        "Flickr": "https://www.flickr.com/people/{username}",
+        "Dailymotion": "https://www.dailymotion.com/{username}",
+        "Twitch": "https://www.twitch.tv/{username}",
+        
+        # Geliştirici Platformları
+        "Dev.to": "https://dev.to/{username}",
+        "Medium": "https://medium.com/@{username}",
+        "HackerRank": "https://www.hackerrank.com/{username}",
+        "CodePen": "https://codepen.io/{username}",
+        "Stack Overflow": "https://stackoverflow.com/users/{username}",
+        "Replit": "https://replit.com/@{username}",
+        "GitLab": "https://gitlab.com/{username}",
+        
+        # Yaratıcı Platformlar
+        "Dribbble": "https://dribbble.com/{username}",
+        "Behance": "https://www.behance.net/{username}",
+        "SoundCloud": "https://soundcloud.com/{username}",
+        "Spotify": "https://open.spotify.com/user/{username}",
+        
+        # Diğer Platformlar
+        "Goodreads": "https://www.goodreads.com/{username}",
+        "Last.fm": "https://www.last.fm/user/{username}",
+        "AngelList": "https://angel.co/u/{username}",
+        "Product Hunt": "https://www.producthunt.com/@{username}",
+        "Kaggle": "https://www.kaggle.com/{username}",
+        "Bandcamp": "https://bandcamp.com/{username}"
     }
 
     check_username(args.username, platforms)
