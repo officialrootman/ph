@@ -1,37 +1,20 @@
 #!/bin/bash
 
-# Hedef adres
-TARGET=$1
+# theHarvester aracını kurmak için gerekli adımlar
 
-# Maksimum zıplama sayısı
-MAX_HOPS=30
+echo "theHarvester kurulumuna başlanıyor..."
 
-# Kontrol: Hedef adres belirtilmiş mi?
-if [ -z "$TARGET" ]; then
-    echo "Kullanım: $0 [hedef_adres]"
-    exit 1
-fi
+# Gerekli paketleri güncelleme ve yükleme
+sudo apk update && sudo apk upgrade -y
+sudo apk install -y apk add python3-pip git
 
-echo "Traceroute to $TARGET, max hops: $MAX_HOPS"
+# theHarvester'ı GitHub üzerinden klonlama
+echo "theHarvester deposu klonlanıyor..."
+git clone https://github.com/laramies/theHarvester.git
+cd theHarvester || { echo "Klonlama başarısız oldu!"; exit 1; }
 
-for ((i=1; i<=MAX_HOPS; i++)); do
-    # TTL ayarı ile ping gönder
-    RESPONSE=$(ping -c 1 -t $i $TARGET 2>/dev/null)
+# Gerekli Python bağımlılıklarını yükleme
+echo "Python bağımlılıkları yükleniyor..."
+pip3 install -r requirements/base.txt
 
-    # IP adresini ve hostname'i ayıkla
-    IP=$(echo "$RESPONSE" | grep "from" | awk '{print $4}' | tr -d ':')
-    HOST=$(echo "$RESPONSE" | grep "from" | awk '{print $5}' | tr -d '()')
-
-    # Eğer yanıt yoksa
-    if [ -z "$IP" ]; then
-        echo "$i - * * *"
-    else
-        echo "$i - $IP ($HOST)"
-    fi
-
-    # Hedefe ulaştıysak döngüyü kır
-    if echo "$RESPONSE" | grep -q "1 packets transmitted, 1 received"; then
-        echo "Hedefe ulaşıldı!"
-        break
-    fi
-done
+echo "Kurulum tamamlandı. theHarvester kullanıma hazır!"
