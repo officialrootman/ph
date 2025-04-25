@@ -1,21 +1,20 @@
-import os
 import socket
 import struct
 import time
 
 def traceroute():
     destination = input("Hedef IP veya Alan Adı Girin: ")
-    max_hops = int(input("Maksimum Hop Sayısı (TTL) Girin: "))
-    timeout = int(input("Zaman Aşımı Süresi (saniye) Girin: "))
-    
     try:
         dest_ip = socket.gethostbyname(destination)
-        print(f"Tracing route to {destination} [{dest_ip}]...")
+        print(f"Hedef: {destination} [{dest_ip}]...")
     except socket.gaierror:
         print("Hedef çözümlenemedi. Lütfen doğru bir adres girin.")
         return
     
-    port = 33434
+    max_hops = int(input("Maksimum Hop Sayısını (TTL) Girin: "))
+    timeout = float(input("Zaman Aşımı Süresini (saniye) Girin: "))
+    port = int(input("Port Numarasını Girin (Örn: 33434): "))
+    
     ttl = 1
     while ttl <= max_hops:
         recv_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
@@ -31,9 +30,12 @@ def traceroute():
         curr_addr = None
         curr_name = None
         try:
-            data, curr_addr = recv_socket.recvfrom(512)
+            _, curr_addr = recv_socket.recvfrom(512)
             curr_addr = curr_addr[0]
-            curr_name = socket.gethostbyaddr(curr_addr)[0]
+            try:
+                curr_name = socket.gethostbyaddr(curr_addr)[0]
+            except socket.herror:
+                curr_name = "Hostname bulunamadı"
         except socket.error:
             pass
         finally:
@@ -42,13 +44,13 @@ def traceroute():
         
         elapsed_time = (time.time() - start_time) * 1000
         if curr_addr:
-            print(f"{ttl}\t{curr_addr}\t{curr_name or 'Unknown'}\t{elapsed_time:.2f} ms")
+            print(f"{ttl}\tAdres: {curr_addr}\tHostname: {curr_name}\tGecikme: {elapsed_time:.2f} ms")
         else:
-            print(f"{ttl}\t*\tRequest timed out.")
+            print(f"{ttl}\t*\tZaman Aşımı.")
         
         ttl += 1
         if curr_addr == dest_ip:
-            print("Trace complete.")
+            print("İzleme Tamamlandı.")
             break
 
 if __name__ == "__main__":
