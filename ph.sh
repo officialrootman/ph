@@ -1,20 +1,57 @@
 #!/bin/bash
 
-# theHarvester aracını kurmak için gerekli adımlar
+usage() {
+  echo "Kullanım: $0 [-m maksimum_adım] hedef_adres"
+  exit 1
+}
 
-echo "theHarvester kurulumuna başlanıyor..."
+# Varsayılan değerler
+MAX_HOPS=30
 
-# Gerekli paketleri güncelleme ve yükleme
-sudo apk update && sudo apk upgrade -y
-sudo apk install -y apk add python3-pip git
+# Komut satırı seçeneklerini işle
+while getopts "m:" opt; do
+  case $opt in
+    m) MAX_HOPS=$OPTARG;;
+    *) usage;;
+  esac
+done
+shift $((OPTIND-1))
 
-# theHarvester'ı GitHub üzerinden klonlama
-echo "theHarvester deposu klonlanıyor..."
-git clone https://github.com/laramies/theHarvester.git
-cd theHarvester || { echo "Klonlama başarısız oldu!"; exit 1; }
+if [ "$#" -ne 1 ]; then
+  usage
+fi
 
-# Gerekli Python bağımlılıklarını yükleme
-echo "Python bağımlılıkları yükleniyor..."
-pip3 install -r requirements/base.txt
+TARGET=$1
 
-echo "Kurulum tamamlandı. theHarvester kullanıma hazır!"
+# DNS çözümleme
+TARGET_IP=$(dig +short $TARGET)
+if [ -z "$TARGET_IP" ]; then
+  echo "Hedef alan adı çözümlenemedi."
+  exit 1
+fi
+
+echo "Traceroute başlıyor: $TARGET ($TARGET_IP)"
+
+for ((i=1; i<=MAX_HOPS; i++))
+do
+  # IPv4 ve IPv6 desteği ekle
+  if [[ $TARGET_IP == *":"* ]]; then
+    RESPONSE=$(ping6 -c 1 -t $i $TARGET | grep "time=")
+  else
+    RESPONSE=$(ping -c 1 -t $i $TARGET | grep "time=")
+  fi
+
+  if [[ -z $RESPONSE ]]; then
+    echo "$i: * (Zaman aşımı)"
+  else
+    IP=$(echo $RESPONSE | awk -F'[()]' '{print $2}')
+    RESPONSE_TIME=$(echo $RESPONSE | awk -F'time=' '{print $2}' | awk '{print $1}')
+    echo "$i: $IP ($RESPONSE_TIME ms)"
+    if [[ $IP == $TARGET ]]; then
+      echo "Hedefe ulaşıldı!"
+      break
+    fi
+  fi
+done
+
+echo "Traceroute tamamlandı!"
