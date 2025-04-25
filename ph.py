@@ -1,5 +1,4 @@
 import socket
-import struct
 import time
 
 def traceroute():
@@ -10,9 +9,8 @@ def traceroute():
     except socket.gaierror:
         print("Hedef çözümlenemedi. Lütfen doğru bir adres girin.")
         return
-    
+
     max_hops = int(input("Maksimum Hop Sayısını (TTL) Girin: "))
-    timeout = float(input("Zaman Aşımı Süresini (saniye) Girin: "))
     port = int(input("Port Numarasını Girin (Örn: 33434): "))
     
     ttl = 1
@@ -20,7 +18,6 @@ def traceroute():
         recv_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
         send_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         
-        recv_socket.settimeout(timeout)
         recv_socket.bind(("", port))
         send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, ttl)
         
@@ -29,29 +26,28 @@ def traceroute():
         
         curr_addr = None
         curr_name = None
-        try:
-            _, curr_addr = recv_socket.recvfrom(512)
-            curr_addr = curr_addr[0]
+        while curr_addr is None:  # Zaman aşımı yerine sonsuz döngü
             try:
-                curr_name = socket.gethostbyaddr(curr_addr)[0]
-            except socket.herror:
-                curr_name = "Hostname bulunamadı"
-        except socket.error:
-            pass
-        finally:
-            send_socket.close()
-            recv_socket.close()
-        
+                _, curr_addr = recv_socket.recvfrom(512)
+                curr_addr = curr_addr[0]
+                try:
+                    curr_name = socket.gethostbyaddr(curr_addr)[0]
+                except socket.herror:
+                    curr_name = "Hostname bulunamadı"
+            except socket.error:
+                pass
+
         elapsed_time = (time.time() - start_time) * 1000
-        if curr_addr:
-            print(f"{ttl}\tAdres: {curr_addr}\tHostname: {curr_name}\tGecikme: {elapsed_time:.2f} ms")
-        else:
-            print(f"{ttl}\t*\tZaman Aşımı.")
+        print(f"{ttl}\tAdres: {curr_addr}\tHostname: {curr_name}\tGecikme: {elapsed_time:.2f} ms")
         
-        ttl += 1
+        send_socket.close()
+        recv_socket.close()
+
         if curr_addr == dest_ip:
             print("İzleme Tamamlandı.")
             break
+
+        ttl += 1
 
 if __name__ == "__main__":
     traceroute()
